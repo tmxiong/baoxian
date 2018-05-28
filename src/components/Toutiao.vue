@@ -44,6 +44,9 @@
           </div>
         </div>
       </li>
+      <div class="list-footer">
+        <LoadMore tip="正在加载更多" v-if="showLoadMore"></LoadMore>
+      </div>
     </ul>
 
   </div>
@@ -69,7 +72,8 @@
           items: ['推荐', '安邦保险', '保险动画', '保险语音', '保险视频'],
           articleItems: [],
           divHeight: 0,
-          screenHeight: window.innerHeight
+          screenHeight: window.innerHeight,
+          showLoadMore: false
         }
       },
       mounted () {
@@ -109,7 +113,7 @@
               console.log(data)
               this.articleItems = data.article_list
               console.log(this.divHeight);
-              hideLoading(this)
+              hideLoading(this);
             })
             .catch((e) => {
               hideLoading(this)
@@ -121,7 +125,10 @@
           let topOffset = this.divHeight - this.screenHeight;
           let scrollHeight = e.srcElement.defaultView.scrollY - 44; // 减去搜索框高度
           if(topOffset === scrollHeight) {
+            this.showLoadMore = true;
             console.log('下一页')
+          } else {
+            //this.showLoadMore = false;
           }
         }
       }
@@ -223,5 +230,12 @@
     color:#ccc;
     font-size:12px;
     margin: 0 2px 0 2px;
+  }
+  .list-footer{
+    width:100%;
+    height:66px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>
