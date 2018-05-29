@@ -7,6 +7,9 @@ function showLoading (_this, title = '正在努力加载...') {
   _this.$vux.loading.show({
     text: title
   })
+};
+function post() {
+  
 }
 
 module.exports = {

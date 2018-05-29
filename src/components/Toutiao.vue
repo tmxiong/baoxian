@@ -6,9 +6,9 @@
 * ================================================== */
 <template>
   <div class="container" ref="container">
-    <header class="header" v-bind:class="[showTab ? 'header' : 'hide-header']">
+    <header class="header" :class="[showTab ? 'header' : 'hide-header']">
       <Tab active-color="#398dee" >
-        <tab-item :selected="tag === item" v-for="item in items" @click="tag = item" :key="item">{{item}}</tab-item>
+        <tab-item :selected="tag === item" v-for="item in tabs" @click="tag = item" :key="item">{{item}}</tab-item>
       </Tab>
     </header>
     <Search v-model="searchValue" class="search1"
@@ -20,34 +20,40 @@
             @on-cancel="onCancel()"
             search-cancel-font-color="#f33"></Search>
 
-    <!--<LoadMore tip="正在加载更多"></LoadMore>-->
+    <!--<LoadMore :show-loading="false" tip="结束探索-海拔高度8864"></LoadMore>-->
 
     <div class="search-content" v-if="!showTab">
 
     </div>
 
-    <ul class="item-container" v-bind:class="[showTab ? 'item-container' : 'hide-item-container']" @scroll="onScroll(e)">
-      <li class="item-content" v-for="item in articleItems" :key="item.article_id">
-        <img class="item-img" :src="item.article_pic_url" alt="">
-        <div class="item-right">
-          <span class="item-title">{{item.article_title}}</span>
-          <div class="item-counts">
-            <!--<svg class="item-icon">-->
-              <!--<use xlink:href="../assets/svgs.svg"/>-->
-            <!--</svg>-->
-            <span class="item-text">阅读:{{item.article_browse_count}}</span>
+    <div class="item-container" :class="[showTab ? 'item-container' : 'hide-item-container']" >
 
-            <!--<svg class="item-icon" style="margin-left:5px">-->
-              <!--<use xlink:href="../assets/svgs.svg"/>-->
-            <!--</svg>-->
-            <span class="item-text">分享:{{item.article_share_count}}</span>
-          </div>
+      <router-link to="toutiaoDetail" v-for="item in articleItems" :key="item.article_id" style="display: block;width:100%;background-color: #fff">
+        <div class="item-content">
+            <img class="item-img" :src="item.article_pic_url" alt="">
+            <div class="item-right">
+              <span class="item-title">{{item.article_title}}</span>
+              <div class="item-counts">
+                <!--<svg class="item-icon">-->
+                <!--<use xlink:href="../assets/svgs.svg"/>-->
+                <!--</svg>-->
+                <span class="item-text">阅读:{{item.article_browse_count}}</span>
+
+                <!--<svg class="item-icon" style="margin-left:5px">-->
+                <!--<use xlink:href="../assets/svgs.svg"/>-->
+                <!--</svg>-->
+                <span class="item-text">分享:{{item.article_share_count}}</span>
+              </div>
+            </div>
         </div>
-      </li>
+      </router-link>
       <div class="list-footer">
         <LoadMore tip="正在加载更多" v-if="showLoadMore"></LoadMore>
+        <LoadMore :show-loading="false" :tip="'结束探索-海拔高度:'+this.articleItems.length*1000+'米'" v-if="showLoadMoreEnd">{{}}</LoadMore>
       </div>
-    </ul>
+    </div>
+
+
 
   </div>
 </template>
@@ -69,11 +75,13 @@
           showTab: true,
           searchValue: '',
           tag: '推荐',
-          items: ['推荐', '安邦保险', '保险动画', '保险语音', '保险视频'],
+          tabs: ['推荐', '安邦保险', '保险动画', '保险语音', '保险视频'],
           articleItems: [],
           divHeight: 0,
           screenHeight: window.innerHeight,
-          showLoadMore: false
+          showLoadMore: false,
+          showLoadMoreEnd: false,
+          lastArticleID: 0, // 13748 // 后面无文章
         }
       },
       mounted () {
@@ -108,12 +116,21 @@
           console.log(this.searchValue)
         },
         getItems () {
-          this.$http.post(urls.articleList)
+          this.$http.get(urls.articleList+'?last_article_id='+this.lastArticleID)
             .then(({data}) => {
               console.log(data)
-              this.articleItems = data.article_list
-              console.log(this.divHeight);
-              hideLoading(this);
+              if(data.status === 1) {
+                this.articleItems = this.articleItems.concat(data.article_list);
+                this.lastArticleID = data.last_article_id;
+                this.showLoadMore = false;
+//                this.lastArticleID = 13748;
+                //console.log(this.divHeight);
+                hideLoading(this);
+              }else {
+                this.showLoadMore = false;
+                this.showLoadMoreEnd = true;
+              }
+
             })
             .catch((e) => {
               hideLoading(this)
@@ -121,15 +138,32 @@
             })
         },
         onScroll (e) {
-          this.divHeight = this.$refs.container.offsetHeight;
+          try{this.divHeight = this.$refs.container.offsetHeight;}catch(e){}
+
           let topOffset = this.divHeight - this.screenHeight;
-          let scrollHeight = e.srcElement.defaultView.scrollY - 44; // 减去搜索框高度
-          if(topOffset === scrollHeight) {
-            this.showLoadMore = true;
-            console.log('下一页')
+          let scrollHeight = e.srcElement.defaultView.scrollY;
+//          console.log(topOffset)
+//          console.log(scrollHeight)
+          if(topOffset <= (scrollHeight + 44)) {
+            if(!this.showLoadMoreEnd && !this.showLoadMore) {
+              this.showLoadMore = true;
+              console.log('下一页')
+              this.getItems();
+            }
+
           } else {
             //this.showLoadMore = false;
           }
+        },
+        go(event) {
+          console.log(event);
+          event.preventDefault()
+          this.$root.currentRoute = this.href
+          window.history.pushState(
+            null,
+            this.$routes[this.href],
+            this.href
+          )
         }
       }
     }
@@ -138,6 +172,10 @@
 <style scoped>
   .container{
     width:100%;
+    display:flex;
+    flex:1;
+    flex-direction: column;
+    overflow: scroll;
 
   }
   .header{
@@ -171,6 +209,9 @@
     align-items: center;
     flex-direction: column;
     background-color:#fff;
+    flex:1;
+    height:100%;
+    color:#000
     /*padding-top:200px;*/
     /*margin-top: -140px;*/
   }
@@ -185,6 +226,8 @@
     background-color:#fff;
     border-bottom:1px solid #eee;
     align-items:center;
+    color:#000;
+    margin:0 auto;
 
   }
   .item-img{

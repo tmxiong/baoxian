@@ -6,8 +6,9 @@
 
 <script>
 export default {
-  name: 'app'
+  name: 'app',
 }
+
 </script>
 
 <style lang="less">
@@ -15,5 +16,11 @@ export default {
 
 body {
   background-color: #fbf9fe;
+}
+.Router {
+  position: absolute;
+  width: 100%;
+  transition: all .8s ease;
+  top: 40px;
 }
 </style>
