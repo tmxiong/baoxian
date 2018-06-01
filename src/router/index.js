@@ -3,7 +3,7 @@ import Router from 'vue-router'
 
 import PageTransition from '../components/PageTransition';
 import Home from '../components/Toutiao'
-import ToutiaoDetail from '@/components/ToutiaoDetail'
+import ToutiaoDetail from '../components/ToutiaoDetail'
 Router.prototype.goBack = function () {
   this.isBack = true
   this.go(-1)
@@ -22,8 +22,8 @@ export default new Router({
     //   name: 'PageTransition',
     //   component: PageTransition, // 引入页面切换组件
     //   children: [
-        {path: '/', component: Home,},
-        {path: '/toutiaoDetail', component: ToutiaoDetail}
+        {path: '/', name:'Home', component: Home,},
+        {path: '/toutiaoDetail', name:'toutiaoDetail', component: ToutiaoDetail}
       // ]
     // }
   ]

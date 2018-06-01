@@ -19,3 +19,21 @@ new Vue({
   router,
   render: h => h(App)
 }).$mount('#app-box')
+
+/**
+ * beforeCreate（创建前）,
+
+ created（创建后）,
+
+ beforeMount(载入前),
+
+ mounted（载入后）,
+
+ beforeUpdate（更新前）,
+
+ updated（更新后）,
+
+ beforeDestroy（销毁前）,
+
+ destroyed（销毁后）
+ * */

@@ -28,7 +28,7 @@
 
     <div class="item-container" :class="[showTab ? 'item-container' : 'hide-item-container']" >
 
-      <router-link to="toutiaoDetail" v-for="item in articleItems" :key="item.article_id" style="display: block;width:100%;background-color: #fff">
+      <router-link v-for="item in articleItems" :key="item.article_id" :to="{ name: 'toutiaoDetail', params: { articleID : item.article_id }}" style="display: block;width:100%;background-color: #fff">
         <div class="item-content">
             <img class="item-img" :src="item.article_pic_url" alt="">
             <div class="item-right">
