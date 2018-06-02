@@ -26,7 +26,7 @@
 
     </div>
 
-    <div class="item-container" :class="[showTab ? 'item-container' : 'hide-item-container']" >
+    <div class="item-container" :class="[showTab ? 'item-container' : 'hide-item-container']">
 
       <router-link v-for="item in articleItems" :key="item.article_id" :to="{ name: 'toutiaoDetail', params: { articleID : item.article_id }}" style="display: block;width:100%;background-color: #fff">
         <div class="item-content">
@@ -86,6 +86,8 @@
       },
       mounted () {
         window.addEventListener('scroll', this.onScroll);
+//        this.itemContent = this.$refs.container;
+//        this.itemContent.addEventListener('scroll',this.onScroll);
       },
       ready () {
 
@@ -98,7 +100,8 @@
 
       },
       destroyed () {
-        window.addEventListener('scroll', this.onScroll);
+        console.log('destroyed')
+        window.removeEventListener('scroll', this.onScroll);
       },
       methods: {
         onFocus () {
@@ -138,6 +141,7 @@
             })
         },
         onScroll (e) {
+          //console.log(e);
           try{this.divHeight = this.$refs.container.offsetHeight;}catch(e){}
 
           let topOffset = this.divHeight - this.screenHeight;

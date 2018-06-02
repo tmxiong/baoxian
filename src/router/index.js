@@ -12,10 +12,10 @@ Router.prototype.goBack = function () {
 Vue.use(Router)
 
 export default new Router({
-  mode: 'history',
-  hashbang: false,
-  history: true,
-  transitionOnLoad:true,
+  // mode: 'history',
+  // hashbang: false,
+  // history: true,
+  // transitionOnLoad:true,
   routes: [
     // {
     //   path: '/',
