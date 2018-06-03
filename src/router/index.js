@@ -12,18 +12,20 @@ Router.prototype.goBack = function () {
 Vue.use(Router)
 
 export default new Router({
-  // mode: 'history',
-  // hashbang: false,
-  // history: true,
-  // transitionOnLoad:true,
+  mode: 'history',
+  hashbang: false,
+  history: true,
+  transitionOnLoad:true,
   routes: [
     // {
     //   path: '/',
     //   name: 'PageTransition',
     //   component: PageTransition, // 引入页面切换组件
     //   children: [
-        {path: '/', name:'Home', component: Home,},
-        {path: '/toutiaoDetail', name:'toutiaoDetail', component: ToutiaoDetail}
+        {path: '/', name:'Home', component: Home,children:[
+            {path: '/toutiaoDetail', name:'toutiaoDetail', component: ToutiaoDetail}
+          ]},
+
       // ]
     // }
   ]

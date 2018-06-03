@@ -4,7 +4,7 @@ import Vue from 'vue'
 import FastClick from 'fastclick'
 import router from './router'
 import App from './App'
-import store from './store'
+// import store from './store'
 import { AjaxPlugin, LoadingPlugin, LoadMore } from 'vux'
 
 Vue.use(AjaxPlugin)

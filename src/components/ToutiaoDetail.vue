@@ -45,7 +45,10 @@ export default {
     flex:1;
     flex-direction: column;
     width:100%;
-    height:100%
+    height:100%;
+    position:fixed;
+    top:0;
+    z-index:999
   }
   .content{
     padding:10px

@@ -1,67 +1,79 @@
-/* ==================================================
+/** ==================================================
 *                       头条获客
 * npm run dev
 * npm run build
+* 如何让better-scroll 滚动？
+* <div ref="wrapper" style="position: absolute;  left: 0;  top: 0;  overflow: hidden; height: 100%">
+*   <div class="list-container"></div>  不能设置height：100%
+* </div>
 *
 * ================================================== */
+
+
 <template>
-  <div class="container" ref="container">
-    <header class="header" :class="[showTab ? 'header' : 'hide-header']">
+  <div>
+    <header :class="[showTab ? 'header' : 'hide-header']">
       <Tab active-color="#398dee" >
         <tab-item :selected="tag === item" v-for="item in tabs" @click="tag = item" :key="item">{{item}}</tab-item>
       </Tab>
     </header>
-    <Search v-model="searchValue" class="search1"
-            v-bind:class="[showTab ? 'search1' : 'search2']"
-            placeholder="输入关键字"
-            @on-submit="startSearch()"
-            @on-focus="onFocus()"
-            @on-blur="onBlur()"
-            @on-cancel="onCancel()"
-            search-cancel-font-color="#f33"></Search>
+    <div ref="wrapper" style="position: absolute;  left: 0;  top: 0;  overflow: hidden; height: 100%">
+      <div class="container" ref="container">
 
-    <!--<LoadMore :show-loading="false" tip="结束探索-海拔高度8864"></LoadMore>-->
+        <Search v-model="searchValue" class="search1"
+                v-bind:class="[showTab ? 'search1' : 'search2']"
+                placeholder="输入关键字"
+                @on-submit="startSearch()"
+                @on-focus="onFocus()"
+                @on-blur="onBlur()"
+                @on-cancel="onCancel()"
+                search-cancel-font-color="#f33"></Search>
 
-    <div class="search-content" v-if="!showTab">
+        <!--<LoadMore :show-loading="false" tip="结束探索-海拔高度8864"></LoadMore>-->
 
-    </div>
+        <div class="search-content" v-if="!showTab">
 
-    <div class="item-container" :class="[showTab ? 'item-container' : 'hide-item-container']">
+        </div>
 
-      <router-link v-for="item in articleItems" :key="item.article_id" :to="{ name: 'toutiaoDetail', params: { articleID : item.article_id }}" style="display: block;width:100%;background-color: #fff">
-        <div class="item-content">
-            <img class="item-img" :src="item.article_pic_url" alt="">
-            <div class="item-right">
-              <span class="item-title">{{item.article_title}}</span>
-              <div class="item-counts">
-                <!--<svg class="item-icon">-->
-                <!--<use xlink:href="../assets/svgs.svg"/>-->
-                <!--</svg>-->
-                <span class="item-text">阅读:{{item.article_browse_count}}</span>
+        <div class="item-container"  :class="[showTab ? 'item-container' : 'item-container']">
 
-                <!--<svg class="item-icon" style="margin-left:5px">-->
-                <!--<use xlink:href="../assets/svgs.svg"/>-->
-                <!--</svg>-->
-                <span class="item-text">分享:{{item.article_share_count}}</span>
+          <router-link v-for="item in articleItems" :key="item.article_id" :to="{ name: 'toutiaoDetail', params: { articleID : item.article_id }}" style="display: block;width:100%;background-color: #fff">
+            <div class="item-content">
+              <img class="item-img" :src="item.article_pic_url" alt="">
+              <div class="item-right">
+                <span class="item-title">{{item.article_title}}</span>
+                <div class="item-counts">
+                  <!--<svg class="item-icon">-->
+                  <!--<use xlink:href="../assets/svgs.svg"/>-->
+                  <!--</svg>-->
+                  <span class="item-text">阅读:{{item.article_browse_count}}</span>
+
+                  <!--<svg class="item-icon" style="margin-left:5px">-->
+                  <!--<use xlink:href="../assets/svgs.svg"/>-->
+                  <!--</svg>-->
+                  <span class="item-text">分享:{{item.article_share_count}}</span>
+                </div>
               </div>
             </div>
+          </router-link>
+          <div class="list-footer">
+            <LoadMore tip="正在加载更多" v-if="showLoadMore"></LoadMore>
+            <LoadMore :show-loading="false" :tip="'结束探索-海拔高度:'+this.articleItems.length*1000+'米'" v-if="showLoadMoreEnd">{{}}</LoadMore>
+          </div>
         </div>
-      </router-link>
-      <div class="list-footer">
-        <LoadMore tip="正在加载更多" v-if="showLoadMore"></LoadMore>
-        <LoadMore :show-loading="false" :tip="'结束探索-海拔高度:'+this.articleItems.length*1000+'米'" v-if="showLoadMoreEnd">{{}}</LoadMore>
       </div>
     </div>
 
-
-
+    <router-view></router-view>
   </div>
+
 </template>
 
 <script>
     import { Tab, TabItem, Search } from 'vux'
     import urls from '../config/urls'
     import {showLoading, hideLoading} from '../utils/utils'
+    import Bscroll from 'better-scroll'
 
     export default {
       name: 'Toutiao',
@@ -72,6 +84,7 @@
       },
       data () {
         return {
+          scroll:null,
           showTab: true,
           searchValue: '',
           tag: '推荐',
@@ -84,24 +97,21 @@
           lastArticleID: 0, // 13748 // 后面无文章
         }
       },
-      mounted () {
-        window.addEventListener('scroll', this.onScroll);
-//        this.itemContent = this.$refs.container;
-//        this.itemContent.addEventListener('scroll',this.onScroll);
-      },
       ready () {
 
       },
       created () {
+
+      },
+      mounted () {
+        //window.addEventListener('scroll', this.onScroll);
+//        this.itemContent = this.$refs.container;
+//        this.itemContent.addEventListener('scroll',this.onScroll);
         showLoading(this);
         this.getItems();
       },
       updated () {
 
-      },
-      destroyed () {
-        console.log('destroyed')
-        window.removeEventListener('scroll', this.onScroll);
       },
       methods: {
         onFocus () {
@@ -129,6 +139,30 @@
 //                this.lastArticleID = 13748;
                 //console.log(this.divHeight);
                 hideLoading(this);
+
+                this.$nextTick(() => {
+                  if(!this.scroll) {
+                    this.scroll = new Bscroll(this.$refs.wrapper, {
+                      click: true,
+                      //swipeTime: 800,
+                      pullUpLoad: {
+                        threshold: -50
+                      }
+                    });
+                    this.scroll.on('pullingUp', ()=>{
+                      console.log('pullingUp');
+                      if(!this.showLoadMoreEnd && !this.showLoadMore) {
+                        this.showLoadMore = true;
+                        this.getItems();
+                      }
+                    })
+
+                  }else{
+                    this.scroll.refresh()
+                  }
+
+                })
+
               }else {
                 this.showLoadMore = false;
                 this.showLoadMoreEnd = true;
@@ -179,8 +213,6 @@
     display:flex;
     flex:1;
     flex-direction: column;
-    overflow: scroll;
-
   }
   .header{
     position: fixed;
@@ -195,9 +227,11 @@
   }
   .search1{
     margin-top:44px;
+    width:100%
   }
   .search2{
     margin-top:0;
+    width:100%
   }
   .search-content{
     width:100%;
@@ -232,6 +266,7 @@
     align-items:center;
     color:#000;
     margin:0 auto;
+    height:100%
 
   }
   .item-img{
