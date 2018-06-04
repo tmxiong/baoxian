@@ -1,18 +1,26 @@
 <template>
   <div class="container">
-    <h3 style="margin-left: 10px;margin-top: 10px">{{articleTitle}}</h3>
-    <div class="content" v-html="articleContent"></div>
+    <div ref="wrapper" style="height: 100%">
+      <div class="article-container">
+        <h3 style="margin-left: 10px;margin-top: 10px">{{articleTitle}}</h3>
+        <div class="content" v-html="articleContent"></div>
+      </div>
+    </div>
   </div>
+
+
 </template>
 
 <script>
   import urls from '../config/urls'
+//  import BScroll from 'better-scroll'
 export default {
 
   data () {
     return {
       articleContent:null,
-      articleTitle:''
+      articleTitle:'',
+      scroll:null,
     }
   },
   mounted() {
@@ -31,6 +39,14 @@ export default {
     setArticle(content){
       this.articleContent = content.article_detail.article_content;
       this.articleTitle = content.article_detail.article_title;
+//      this.$nextTick(()=>{
+//        this.scroll = new BScroll(this.$refs.wrapper,{
+//          scrollbar: {
+//            fade: true,
+//            interactive: false // 1.8.0 新增
+//          }
+//        })
+//      })
 
     }
   }
@@ -40,17 +56,33 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .container{
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: #fff;
+    z-index: 999;
+    overflow: scroll;
+  }
+  .article-container{
     display:flex;
     background-color:#fff;
     flex:1;
     flex-direction: column;
     width:100%;
-    height:100%;
-    position:fixed;
-    top:0;
-    z-index:999
   }
   .content{
     padding:10px
+  }
+  .slide-left-enter, .slide-right-leave-active {
+    opacity: 0;
+    -webkit-transform: translate(50px, 0);
+    transform: translate(50px, 0);
+  }
+  .slide-left-leave-active, .slide-right-enter {
+    opacity: 0;
+    -webkit-transform: translate(-50px, 0);
+    transform: translate(-50px, 0);
   }
 </style>

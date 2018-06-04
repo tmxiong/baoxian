@@ -12,30 +12,34 @@
 
 <template>
   <div>
-    <header :class="[showTab ? 'header' : 'hide-header']">
-      <Tab active-color="#398dee" >
+    <header class="header">
+      <Tab active-color="#398dee">
         <tab-item :selected="tag === item" v-for="item in tabs" @click="tag = item" :key="item">{{item}}</tab-item>
       </Tab>
+      <Search v-model="searchValue" class="search1"
+              v-bind:class="[showTab ? 'search1' : 'search2']"
+              placeholder="输入关键字"
+              @on-submit="startSearch()"
+              @on-focus="onFocus()"
+              @on-blur="onBlur()"
+              @on-cancel="onCancel()"
+              search-cancel-font-color="#f33"></Search>
     </header>
+    <div class="search-content" v-if="!showTab">
+      <div>454646464</div>
+      <div>454646464</div>
+      <div>454646464</div>
+      <div>454646464</div>
+      <div>454646464</div>
+    </div>
     <div ref="wrapper" style="position: absolute;  left: 0;  top: 0;  overflow: hidden; height: 100%">
       <div class="container" ref="container">
 
-        <Search v-model="searchValue" class="search1"
-                v-bind:class="[showTab ? 'search1' : 'search2']"
-                placeholder="输入关键字"
-                @on-submit="startSearch()"
-                @on-focus="onFocus()"
-                @on-blur="onBlur()"
-                @on-cancel="onCancel()"
-                search-cancel-font-color="#f33"></Search>
 
         <!--<LoadMore :show-loading="false" tip="结束探索-海拔高度8864"></LoadMore>-->
 
-        <div class="search-content" v-if="!showTab">
 
-        </div>
-
-        <div class="item-container"  :class="[showTab ? 'item-container' : 'item-container']">
+        <div class="item-container">
 
           <router-link v-for="item in articleItems" :key="item.article_id" :to="{ name: 'toutiaoDetail', params: { articleID : item.article_id }}" style="display: block;width:100%;background-color: #fff">
             <div class="item-content">
@@ -73,7 +77,7 @@
     import { Tab, TabItem, Search } from 'vux'
     import urls from '../config/urls'
     import {showLoading, hideLoading} from '../utils/utils'
-    import Bscroll from 'better-scroll'
+    import BScroll from 'better-scroll'
 
     export default {
       name: 'Toutiao',
@@ -104,9 +108,7 @@
 
       },
       mounted () {
-        //window.addEventListener('scroll', this.onScroll);
-//        this.itemContent = this.$refs.container;
-//        this.itemContent.addEventListener('scroll',this.onScroll);
+
         showLoading(this);
         this.getItems();
       },
@@ -139,14 +141,19 @@
 //                this.lastArticleID = 13748;
                 //console.log(this.divHeight);
                 hideLoading(this);
+                if(this.scroll){this.scroll.finishPullUp();}
 
                 this.$nextTick(() => {
                   if(!this.scroll) {
-                    this.scroll = new Bscroll(this.$refs.wrapper, {
+                    this.scroll = new BScroll(this.$refs.wrapper, {
                       click: true,
                       //swipeTime: 800,
                       pullUpLoad: {
-                        threshold: -50
+                        threshold: 50
+                      },
+                      scrollbar: {
+                        fade: true,
+                        interactive: false // 1.8.0 新增
                       }
                     });
                     this.scroll.on('pullingUp', ()=>{
@@ -174,25 +181,6 @@
               console.log(e)
             })
         },
-        onScroll (e) {
-          //console.log(e);
-          try{this.divHeight = this.$refs.container.offsetHeight;}catch(e){}
-
-          let topOffset = this.divHeight - this.screenHeight;
-          let scrollHeight = e.srcElement.defaultView.scrollY;
-//          console.log(topOffset)
-//          console.log(scrollHeight)
-          if(topOffset <= (scrollHeight + 44)) {
-            if(!this.showLoadMoreEnd && !this.showLoadMore) {
-              this.showLoadMore = true;
-              console.log('下一页')
-              this.getItems();
-            }
-
-          } else {
-            //this.showLoadMore = false;
-          }
-        },
         go(event) {
           console.log(event);
           event.preventDefault()
@@ -211,7 +199,6 @@
   .container{
     width:100%;
     display:flex;
-    flex:1;
     flex-direction: column;
   }
   .header{
@@ -219,14 +206,14 @@
     z-index: 997;
     top:0;
     width:100%;
-    height:44px;
+    /*height:44px;*/
     background-color:#fff
   }
   .hide-header{
     display:none;
   }
   .search1{
-    margin-top:44px;
+    /*margin-top:44px;*/
     width:100%
   }
   .search2{
@@ -240,6 +227,7 @@
     top:0;
     background-color: #fff;
     padding-top:44px;
+    z-index: 2;
   }
   .item-container{
     display:flex;
@@ -249,7 +237,8 @@
     background-color:#fff;
     flex:1;
     height:100%;
-    color:#000
+    color:#000;
+    margin-top:88px;
     /*padding-top:200px;*/
     /*margin-top: -140px;*/
   }
@@ -319,5 +308,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+
+
+  .slide-left-enter, .slide-right-leave-active {
+    opacity: 0;
+    -webkit-transform: translate(50px, 0);
+    transform: translate(50px, 0);
+  }
+  .slide-left-leave-active, .slide-right-enter {
+    opacity: 0;
+    -webkit-transform: translate(-50px, 0);
+    transform: translate(-50px, 0);
   }
 </style>
