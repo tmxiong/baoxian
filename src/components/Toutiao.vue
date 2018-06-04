@@ -35,10 +35,6 @@
     <div ref="wrapper" style="position: absolute;  left: 0;  top: 0;  overflow: hidden; height: 100%">
       <div class="container" ref="container">
 
-
-        <!--<LoadMore :show-loading="false" tip="结束探索-海拔高度8864"></LoadMore>-->
-
-
         <div class="item-container">
 
           <router-link v-for="item in articleItems" :key="item.article_id" :to="{ name: 'toutiaoDetail', params: { articleID : item.article_id }}" style="display: block;width:100%;background-color: #fff">
