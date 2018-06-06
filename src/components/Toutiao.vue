@@ -25,36 +25,38 @@
               @on-cancel="onCancel()"
               search-cancel-font-color="#f33"></Search>
     </header>
-    <div class="search-content" v-if="!showTab">
-      <div>454646464</div>
-      <div>454646464</div>
-      <div>454646464</div>
-      <div>454646464</div>
-      <div>454646464</div>
-    </div>
-    <div ref="wrapper" style="position: absolute;  left: 0;  top: 0;  overflow: hidden; height: 100%">
+    <!--<div class="search-content" v-if="!showTab">-->
+      <!--<div>454646464</div>-->
+      <!--<div>454646464</div>-->
+      <!--<div>454646464</div>-->
+      <!--<div>454646464</div>-->
+      <!--<div>454646464</div>-->
+    <!--</div>-->
+    <SearchArticle v-if="!showTab" class="search-content"></SearchArticle>
+    <div ref="wrapper" style="position: absolute;  left: 0;  top: 0;  overflow: hidden; height: 100%;width:100%">
       <div class="container" ref="container">
 
         <div class="item-container">
 
           <router-link v-for="item in articleItems" :key="item.article_id" :to="{ name: 'toutiaoDetail', params: { articleID : item.article_id }}" style="display: block;width:100%;background-color: #fff">
-            <div class="item-content">
-              <img class="item-img" :src="item.article_pic_url" alt="">
-              <div class="item-right">
-                <span class="item-title">{{item.article_title}}</span>
-                <div class="item-counts">
-                  <!--<svg class="item-icon">-->
-                  <!--<use xlink:href="../assets/svgs.svg"/>-->
-                  <!--</svg>-->
-                  <span class="item-text">阅读:{{item.article_browse_count}}</span>
+            <!--<div class="item-content">-->
+              <!--<img class="item-img" :src="item.article_pic_url" alt="">-->
+              <!--<div class="item-right">-->
+                <!--<span class="item-title">{{item.article_title}}</span>-->
+                <!--<div class="item-counts">-->
+                  <!--&lt;!&ndash;<svg class="item-icon">&ndash;&gt;-->
+                  <!--&lt;!&ndash;<use xlink:href="../assets/svgs.svg"/>&ndash;&gt;-->
+                  <!--&lt;!&ndash;</svg>&ndash;&gt;-->
+                  <!--<span class="item-text">阅读:{{item.article_browse_count}}</span>-->
 
-                  <!--<svg class="item-icon" style="margin-left:5px">-->
-                  <!--<use xlink:href="../assets/svgs.svg"/>-->
-                  <!--</svg>-->
-                  <span class="item-text">分享:{{item.article_share_count}}</span>
-                </div>
-              </div>
-            </div>
+                  <!--&lt;!&ndash;<svg class="item-icon" style="margin-left:5px">&ndash;&gt;-->
+                  <!--&lt;!&ndash;<use xlink:href="../assets/svgs.svg"/>&ndash;&gt;-->
+                  <!--&lt;!&ndash;</svg>&ndash;&gt;-->
+                  <!--<span class="item-text">分享:{{item.article_share_count}}</span>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+            <ListItem :item="item"></ListItem>
           </router-link>
           <div class="list-footer">
             <LoadMore tip="正在加载更多" v-if="showLoadMore"></LoadMore>
@@ -64,13 +66,17 @@
       </div>
     </div>
 
-    <router-view></router-view>
+    <transition name="router-slid" mode="out-in">
+      <router-view></router-view>
+    </transition>
   </div>
 
 </template>
 
 <script>
     import { Tab, TabItem, Search } from 'vux'
+    import SearchArticle from '../components/SearchArticle.vue'
+    import ListItem from '../components/ListItem.vue'
     import urls from '../config/urls'
     import {showLoading, hideLoading} from '../utils/utils'
     import BScroll from 'better-scroll'
@@ -80,7 +86,9 @@
       components: {
         Tab,
         TabItem,
-        Search
+        ListItem,
+        Search,
+        SearchArticle,
       },
       data () {
         return {
@@ -308,14 +316,17 @@
 
 
 
-  .slide-left-enter, .slide-right-leave-active {
-    opacity: 0;
-    -webkit-transform: translate(50px, 0);
-    transform: translate(50px, 0);
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
   }
-  .slide-left-leave-active, .slide-right-enter {
+  .fade-enter, .fade-leave-active {
     opacity: 0;
-    -webkit-transform: translate(-50px, 0);
-    transform: translate(-50px, 0);
+  }
+  .router-slid-enter-active, .router-slid-leave-active {
+    transition: all .4s;
+  }
+  .router-slid-enter, .router-slid-leave-active {
+    transform: translate3d(2rem, 0, 0);
+    opacity: 0;
   }
 </style>
