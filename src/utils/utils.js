@@ -9,10 +9,10 @@ function showLoading (_this, title = '正在努力加载...') {
   })
 };
 function post() {
-  
+
 }
 
 module.exports = {
   hideLoading,
-  showLoading
+  showLoading,
 }

@@ -5,11 +5,12 @@ import FastClick from 'fastclick'
 import router from './router'
 import App from './App'
 // import store from './store'
-import { AjaxPlugin, LoadingPlugin, LoadMore } from 'vux'
+import { AjaxPlugin, LoadingPlugin, LoadMore, ToastPlugin  } from 'vux'
 
 Vue.use(AjaxPlugin)
 Vue.use(LoadingPlugin)
-Vue.component('LoadMore', LoadMore)
+Vue.use(ToastPlugin)
+Vue.component('LoadMore', LoadMore);
 
 FastClick.attach(document.body)
 

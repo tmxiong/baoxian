@@ -79,8 +79,8 @@
     import ListItem from '../components/ListItem.vue'
     import urls from '../config/urls'
     import {showLoading, hideLoading} from '../utils/utils'
+    import bus from '../utils/bus'
     import BScroll from 'better-scroll'
-
     export default {
       name: 'Toutiao',
       components: {
@@ -132,6 +132,7 @@
           this.showTab = true
         },
         startSearch () {
+          bus.$emit('change',this.searchValue); //Hub触发事件
           console.log(this.searchValue)
         },
         getItems () {
@@ -181,7 +182,13 @@
 
             })
             .catch((e) => {
-              hideLoading(this)
+              hideLoading(this);
+              this.showLoadMore = false;
+              if(this.scroll){this.scroll.finishPullUp();}
+              this.$vux.toast.show({
+                type:'warn',
+                text: '网络错误'
+              });
               console.log(e)
             })
         },

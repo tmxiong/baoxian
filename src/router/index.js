@@ -12,9 +12,9 @@ Router.prototype.goBack = function () {
 Vue.use(Router)
 
 export default new Router({
-  mode: 'history',
+  // mode: 'history',
   hashbang: false,
-  history: true,
+  // history: true,
   transitionOnLoad:true,
   scrollBehavior (to, from, savedPosition) {
     if (savedPosition) {
