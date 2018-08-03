@@ -13,6 +13,7 @@
 
 <script>
   import urls from '../config/urls'
+  import {showLoading,hideLoading, vGet} from '../utils/utils'
 //  import BScroll from 'better-scroll'
 export default {
 
@@ -24,17 +25,27 @@ export default {
     }
   },
   mounted() {
-    this.getParams();
+    showLoading(this);
+    setTimeout(()=>{
+      this.getParams();
+    },400);
+
   },
   methods: {
     getParams() {
-      let id = this.$route.params.articleID
+      let id = this.$route.params.articleID;
       this.getArticle(id);
     },
-    getArticle(id) {
-      this.$http.get(urls.articleDetail+'?article_id='+id)
-        .then(data => this.setArticle(data.data))
-        .catch(e => console.log(e))
+    async getArticle(id) {
+      let url = urls.articleDetail+'?article_id='+id;
+      try{
+        let data = await vGet(url);
+        this.setArticle(data.data);
+        hideLoading(this);
+      }catch(e){
+        hideLoading(this)
+      }
+
     },
     setArticle(content){
       this.articleContent = content.article_detail.article_content;

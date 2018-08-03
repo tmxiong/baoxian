@@ -132,6 +132,34 @@
           bus.$emit('change',this.searchValue); //Hub触发事件
           console.log(this.searchValue)
         },
+        initScroll() {
+          if(this.scroll){this.scroll.finishPullUp();}
+          this.$nextTick(() => {
+            if(!this.scroll) {
+              this.scroll = new BScroll(this.$refs.wrapper, {
+                click: true,
+                //swipeTime: 800,
+                pullUpLoad: {
+                  threshold: 50
+                },
+                scrollbar: {
+                  fade: true,
+                  interactive: false // 1.8.0 新增
+                }
+              });
+              this.scroll.on('pullingUp', ()=>{
+                //console.log('pullingUp');
+                if(!this.showLoadMoreEnd && !this.showLoadMore) {
+                  this.showLoadMore = true;
+                  this.getItems();
+                }
+              })
+
+            }else{
+              this.scroll.refresh()
+            }
+          })
+        },
         async getItems () {
           let url = urls.articleList+'?last_article_id='+this.lastArticleID;
           try{
@@ -146,33 +174,7 @@
               this.showLoadMore = false;
 //                this.lastArticleID = 13748;
               //console.log(this.divHeight);
-              if(this.scroll){this.scroll.finishPullUp();}
-
-              this.$nextTick(() => {
-                if(!this.scroll) {
-                  this.scroll = new BScroll(this.$refs.wrapper, {
-                    click: true,
-                    //swipeTime: 800,
-                    pullUpLoad: {
-                      threshold: 50
-                    },
-                    scrollbar: {
-                      fade: true,
-                      interactive: false // 1.8.0 新增
-                    }
-                  });
-                  this.scroll.on('pullingUp', ()=>{
-                    console.log('pullingUp');
-                    if(!this.showLoadMoreEnd && !this.showLoadMore) {
-                      this.showLoadMore = true;
-                      this.getItems();
-                    }
-                  })
-
-                }else{
-                  this.scroll.refresh()
-                }
-              })
+              this.initScroll();
 
             }else {
               this.isError = true;
@@ -335,16 +337,17 @@
 
 
   .fade-enter-active, .fade-leave-active {
-    transition: opacity .5s;
+    transition: opacity .3s;
   }
   .fade-enter, .fade-leave-active {
-    opacity: 0;
+    opacity: .2;
+    transform: translate3d(2rem, 0, 0);
   }
   .router-slid-enter-active, .router-slid-leave-active {
     transition: all .4s;
   }
   .router-slid-enter, .router-slid-leave-active {
-    transform: translate3d(2rem, 0, 0);
-    opacity: 0;
+    transform: translate3d(100%, 0, 0);
+    opacity: .8;
   }
 </style>
