@@ -25,19 +25,14 @@
               @on-cancel="onCancel()"
               search-cancel-font-color="#f33"></Search>
     </header>
-    <!--<div class="search-content" v-if="!showTab">-->
-      <!--<div>454646464</div>-->
-      <!--<div>454646464</div>-->
-      <!--<div>454646464</div>-->
-      <!--<div>454646464</div>-->
-      <!--<div>454646464</div>-->
-    <!--</div>-->
     <SearchArticle v-if="!showTab" class="search-content"></SearchArticle>
     <div ref="wrapper" style="position: absolute;  left: 0;  top: 0;  overflow: hidden; height: 100%;width:100%">
       <div class="container" ref="container">
 
+        <div class="error-container" v-if="isError">
+          <div @click="init" class="error-msg">加载错误,点击重试</div>
+        </div>
         <div class="item-container">
-
           <router-link v-for="item in articleItems" :key="item.article_id" :to="{ name: 'toutiaoDetail', params: { articleID : item.article_id }}" style="display: block;width:100%;background-color: #fff">
             <!--<div class="item-content">-->
               <!--<img class="item-img" :src="item.article_pic_url" alt="">-->
@@ -58,7 +53,7 @@
             <!--</div>-->
             <ListItem :item="item"></ListItem>
           </router-link>
-          <div class="list-footer">
+          <div class="list-footer" v-if="articleItems.length>0">
             <LoadMore tip="正在加载更多" v-if="showLoadMore"></LoadMore>
             <LoadMore :show-loading="false" :tip="'结束探索-海拔高度:'+this.articleItems.length*1000+'米'" v-if="showLoadMoreEnd">{{}}</LoadMore>
           </div>
@@ -78,9 +73,9 @@
     import SearchArticle from '../components/SearchArticle.vue'
     import ListItem from '../components/ListItem.vue'
     import urls from '../config/urls'
-    import {showLoading, hideLoading} from '../utils/utils'
     import bus from '../utils/bus'
     import BScroll from 'better-scroll'
+    import {showLoading, hideLoading, vGet} from '../utils/utils'
     export default {
       name: 'Toutiao',
       components: {
@@ -97,9 +92,8 @@
           searchValue: '',
           tag: '推荐',
           tabs: ['推荐', '安邦保险', '保险动画', '保险语音', '保险视频'],
+          isError: false,
           articleItems: [],
-          divHeight: 0,
-          screenHeight: window.innerHeight,
           showLoadMore: false,
           showLoadMoreEnd: false,
           lastArticleID: 0, // 13748 // 后面无文章
@@ -112,14 +106,17 @@
 
       },
       mounted () {
-
-        showLoading(this);
-        this.getItems();
+        this.init();
       },
       updated () {
 
       },
       methods: {
+        init () {
+          this.isError = false;
+          showLoading(this);
+          this.getItems();
+        },
         onFocus () {
           console.log('onFocus')
           this.showTab = false
@@ -135,62 +132,63 @@
           bus.$emit('change',this.searchValue); //Hub触发事件
           console.log(this.searchValue)
         },
-        getItems () {
-          this.$http.get(urls.articleList+'?last_article_id='+this.lastArticleID)
-            .then(({data}) => {
-              console.log(data)
-              if(data.status === 1) {
-                this.articleItems = this.articleItems.concat(data.article_list);
-                this.lastArticleID = data.last_article_id;
-                this.showLoadMore = false;
-//                this.lastArticleID = 13748;
-                //console.log(this.divHeight);
-                hideLoading(this);
-                if(this.scroll){this.scroll.finishPullUp();}
-
-                this.$nextTick(() => {
-                  if(!this.scroll) {
-                    this.scroll = new BScroll(this.$refs.wrapper, {
-                      click: true,
-                      //swipeTime: 800,
-                      pullUpLoad: {
-                        threshold: 50
-                      },
-                      scrollbar: {
-                        fade: true,
-                        interactive: false // 1.8.0 新增
-                      }
-                    });
-                    this.scroll.on('pullingUp', ()=>{
-                      console.log('pullingUp');
-                      if(!this.showLoadMoreEnd && !this.showLoadMore) {
-                        this.showLoadMore = true;
-                        this.getItems();
-                      }
-                    })
-
-                  }else{
-                    this.scroll.refresh()
-                  }
-
-                })
-
-              }else {
-                this.showLoadMore = false;
-                this.showLoadMoreEnd = true;
-              }
-
-            })
-            .catch((e) => {
-              hideLoading(this);
+        async getItems () {
+          let url = urls.articleList+'?last_article_id='+this.lastArticleID;
+          try{
+            let data = await vGet(url);
+            data = data.data;
+            console.log(data);
+            this.isError = false;
+            hideLoading(this);
+            if(data.status === 1) {
+              this.articleItems = this.articleItems.concat(data.article_list);
+              this.lastArticleID = data.last_article_id;
               this.showLoadMore = false;
+//                this.lastArticleID = 13748;
+              //console.log(this.divHeight);
               if(this.scroll){this.scroll.finishPullUp();}
-              this.$vux.toast.show({
-                type:'warn',
-                text: '网络错误'
-              });
-              console.log(e)
-            })
+
+              this.$nextTick(() => {
+                if(!this.scroll) {
+                  this.scroll = new BScroll(this.$refs.wrapper, {
+                    click: true,
+                    //swipeTime: 800,
+                    pullUpLoad: {
+                      threshold: 50
+                    },
+                    scrollbar: {
+                      fade: true,
+                      interactive: false // 1.8.0 新增
+                    }
+                  });
+                  this.scroll.on('pullingUp', ()=>{
+                    console.log('pullingUp');
+                    if(!this.showLoadMoreEnd && !this.showLoadMore) {
+                      this.showLoadMore = true;
+                      this.getItems();
+                    }
+                  })
+
+                }else{
+                  this.scroll.refresh()
+                }
+              })
+
+            }else {
+              this.isError = true;
+              this.showLoadMore = false;
+              this.showLoadMoreEnd = true;
+            }
+          }catch(e){
+            hideLoading(this);
+            this.isError = true;
+            this.showLoadMore = false;
+            if(this.scroll){this.scroll.finishPullUp();}
+            this.$vux.toast.show({
+              type:'warn',
+              text: '加载失败,稍候重试'
+            });
+          }
         },
         go(event) {
           console.log(event);
@@ -220,8 +218,21 @@
     /*height:44px;*/
     background-color:#fff
   }
-  .hide-header{
-    display:none;
+  .error-container{
+    width:100%;
+    height:100%;
+    background-color:transparent;
+    flex:1;
+    align-items: center;
+    justify-content: center;
+  }
+  .error-msg{
+    color:#ccc;
+    height:50px;
+    vertical-align: center;
+    margin-top:50%;
+    width:100%;
+    text-align: center;
   }
   .search1{
     /*margin-top:44px;*/

@@ -1,4 +1,5 @@
 const API_URL = 'http://bs.linlizone.com/'
+// const API_URL = 'http://hkds.yunxinsky.com/'
 
 module.exports = {
   // 文章列表
